@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">AR Sudoku Solver</string>
+    <string name="analyze">Analyze</string>
+    <string name="flash">Flash</string>
+    <string name="change_method">Change method</string>
+    <string name="tensorflow">Tensorflow used</string>
+    <string name="tesseract">Tesseract used</string>
+    <string name="error">/!\\</string>
+</resources>
