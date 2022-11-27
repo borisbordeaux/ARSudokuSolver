@@ -5,8 +5,8 @@ It uses OpenCV for all image processing.
 
 ## How to build
 
-Clone this repo and add in the ARSudokuSolver a `gradle.properties` file.  
-There should be in this file the following values :  
+Clone this repo and add in the ARSudokuSolver folder a `gradle.properties` file.  
+There should be in this file the following values:  
 ```
 sdk.dir=/path/to/Android/Sdk
 signings.store.path=/path/to/keystore/file.jks
@@ -37,27 +37,30 @@ I use the findContours function to find the maximum quadrilateral area of the pi
 ### Step 4
 
 I use the getPerspectiveTransform function to find the transformation to get a square from the quadrilateral. The I use the warpPerspectiveFunction to apply the transformation on the thresholded image.  
-![Grid shown in the picture](./pictures/step4.jpg)
+<img src="./pictures/step4.jpg" alt="Grid shown in the picture" width="480px">
 
 ### Step 5
 
-I divide the image into 81 images for each cell of the grid, here are some exemples :  
-![Little square](./pictures/1.jpg)
-![Little square](./pictures/2.jpg)
-![Little square](./pictures/3.jpg)
-![Little square](./pictures/4.jpg)
-![Little square](./pictures/5.jpg)
-![Little square](./pictures/6.jpg)  
-
-I use a neural network to deduce the numbers of each cell (or 0 if there is no number). Then I use an algorithm (explained after) to solve the sudoku. Finally, I write each values to the square image.  
-![Completed sudoku](./pictures/step5.jpg)
+I divide the image into 81 images for each cell of the grid, after are some exemples.  
+Then I use a neural network to deduce the number of each cell (or 0 if there is no number).  
+<img src="./pictures/1.jpg" alt="Little square" width="80px">
+<img src="./pictures/2.jpg" alt="Little square" width="80px">
+<img src="./pictures/3.jpg" alt="Little square" width="80px">
+<img src="./pictures/4.jpg" alt="Little square" width="80px">
+<img src="./pictures/5.jpg" alt="Little square" width="80px">
+<img src="./pictures/6.jpg" alt="Little square" width="80px">  
 
 ### Step 6
+
+I use an algorithm (explained after) to solve the sudoku. Then, I write each values to the square image.  
+<img src="./pictures/step5.jpg" alt="Completed Sudoku" width="480px">
+
+### Step 7
 
 I use the transformation from the square to the quadrilateral made of the contours of the detected grid to project the numbers at the place of the grid.  
 ![Completed sudoku projected](./pictures/step6.jpg)
 
-### Step 7
+### Step 8
 
 Finally I substract the image with the numbers to the original photo to make appear the numbers in black.  
 ![Final image](./pictures/step7.jpg)
@@ -78,32 +81,37 @@ To solve the sudoku, I repeat the following steps until the end.
 ## Neural Network
 
 About this, I'm still working on it because I have some problems when filming a screen because of the Moiré pattern that appears on the picture.  
-I don't know yet how to generate the Moiré pettern noise nor how to remove it from picture.
+I don't know yet how to generate the Moiré pettern noise nor how to remove it from picture.  
+During the threshold operation, it makes appear a lot of noise hence it is difficult to the AI to find the right number in the cell.  
+I have then 2 possibilities:  
+- Generate noisy images with Moiré pattern noise to denoise using another neural network
+- Denoise the Moiré pattern before using the neural network
 
 ### Generate the Moiré pattern noise
 
 I tried to generate the noise using thresholded Perlin noise with different parameters, following picture give the result I have.  
-![Perlin noise](./pictures/perlin_noise_280x280_10octaves.png)
+<img src="./pictures/perlin_noise_280x280_10octaves.png" alt="Perlin noise" width="480px">  
 I want to use this noise to improve the dataset, but for now it doesn't work.
 
 ### Remove the Moiré pattern noise
 
 I tried to remove this pattern directly from the original picture.  
-It appears that method like blocking some frequencies using the Fourier transform doesn't work as well as expected, the following pictures show some results.
-- input image  
-![Little square](./pictures/denoising/input.jpg)
+It appears that method like blocking some frequencies using the Fourier transform doesn't work as well as expected, the following pictures show some results.  
+
+- Input image  
+<img src="./pictures/denoising/input.jpg" alt="input" width="480px">
 
 - Fourier transform result  
-![Little square](./pictures/denoising/Fourier_result.png)
+![Fourier_result](./pictures/denoising/Fourier_result.png)
 
-- band stop filter  
-![Little square](./pictures/denoising/band_stop_filter.png)
+- Band stop filter  
+![band_stop_filter](./pictures/denoising/band_stop_filter.png)
 
-- band stop result  
-![Little square](./pictures/denoising/band_stop_result.png)
+- Band stop result  
+![band_stop_result](./pictures/denoising/band_stop_result.png)
 
-- cut filter  
-![Little square](./pictures/denoising/cut_filter.png)
+- Cut filter  
+![cut_filter](./pictures/denoising/cut_filter.png)
 
-- cut result  
-![Little square](./pictures/denoising/cut_result.png)
+- Cut result  
+![cut_result](./pictures/denoising/cut_result.png)
