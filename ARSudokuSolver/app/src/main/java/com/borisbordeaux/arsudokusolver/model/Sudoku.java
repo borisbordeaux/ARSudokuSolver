@@ -1,69 +1,60 @@
 package com.borisbordeaux.arsudokusolver.model;
 
-import android.util.Log;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
 public class Sudoku {
 
-    //TAG for debugging logs
-    private final String TAG = "Solve";
-
-    //81 cases for the sudoku
-    private final Case[] cases;
+    //81 cells for the sudoku
+    private final Cell[] cells = new Cell[81];
 
     //the different groups of the sudoku
-    private final Group[] lines;
-    private final Group[] columns;
-    private final Group[] bigCases;
+    private final Group[] lines = new Group[9];
+    private final Group[] columns = new Group[9];
+    private final Group[] bigCells = new Group[9];
 
-    //a list of the lists of the indices of the played cases when a choice is made
-    //the first value for each list is the index of the case where a choice was made
-    private final ArrayList<ArrayList<Integer>> playedCasesAfterChoice;
+    //a list of the lists of the indices of the played cells when a choice is made
+    //the first value for each list is the index of the cell where a choice was made
+    private final ArrayList<ArrayList<Integer>> playedCellsAfterChoice;
 
     //used to force the end of a sudoku when there are unresolvable errors
     //aka errors not due to a choice
     private boolean forceEnd;
 
     /**
-     * Constructor
+     * Constructs an empty sudoku with all groups initialized
      */
     public Sudoku() {
-        cases = new Case[81];
-        lines = new Group[9];
-        columns = new Group[9];
-        bigCases = new Group[9];
         for (int i = 0; i < 81; i++) {
-            cases[i] = new Case();
+            cells[i] = new Cell();
         }
+        playedCellsAfterChoice = new ArrayList<>();
         fillGroups();
-        playedCasesAfterChoice = new ArrayList<>();
         reset();
     }
 
     /**
-     * Sets the given value for the case at the given index
+     * Sets the given value for the cell at the given index
      *
-     * @param index the index of the case, must be in [0..80]
+     * @param index the index of the cell, must be in [0..80]
      * @param value the value to set, must be in [0..9]
      */
     public void setValue(int index, int value) {
         if (value > -1 && value < 10 && index > -1 && index < 81) {
-            cases[index].setValue(value);
+            cells[index].setValue(value);
         }
     }
 
     /**
-     * Sets the given value as default value for the case at the given index
+     * Sets the given value as default value for the cell at the given index
      *
-     * @param index the index of the case, must be in [0..80]
+     * @param index the index of the cell, must be in [0..80]
      * @param value the value to set, must be in [0..9]
      */
     public void setInitValue(int index, int value) {
         if (value > -1 && value < 10 && index > -1 && index < 81) {
-            cases[index].setInitValue(value);
+            cells[index].setInitValue(value);
         }
     }
 
@@ -77,7 +68,7 @@ public class Sudoku {
         if (!forceEnd) {
             int i = 0;
             while (i != 81) {
-                if (cases[i].getValue() == 0) {
+                if (cells[i].getValue() == 0) {
                     res = false;
                     break;
                 }
@@ -91,11 +82,11 @@ public class Sudoku {
      * Resets the sudoku
      */
     public void reset() {
-        for (Case c : cases) {
+        for (Cell c : cells) {
             c.reset();
         }
         forceEnd = false;
-        playedCasesAfterChoice.clear();
+        playedCellsAfterChoice.clear();
     }
 
     /**
@@ -120,8 +111,6 @@ public class Sudoku {
                 while (!ended()) {
                     solveStep();
                 }
-            } else {
-                Log.d("Solve", "Errors detected...");
             }
         }
     }
@@ -157,7 +146,7 @@ public class Sudoku {
     public boolean isError() {
         boolean error = false;
         for (int i = 0; i < 9; i++) {
-            if (lines[i].isError() || columns[i].isError() || bigCases[i].isError()) {
+            if (lines[i].isError() || columns[i].isError() || bigCells[i].isError()) {
                 error = true;
             }
         }
@@ -165,27 +154,27 @@ public class Sudoku {
     }
 
     /**
-     * Getter for the value of the case at the given index
+     * Getter for the value of the cell at the given index
      *
-     * @param index the index of the case
-     * @return the value of the case at the given index
+     * @param index the index of the cell
+     * @return the value of the cell at the given index
      */
     public int getValue(int index) {
-        return cases[index].getValue();
+        return cells[index].getValue();
     }
 
     /**
-     * Indicates whether the case at the given index has a default value or not
+     * Indicates whether the cell at the given index has a default value or not
      *
-     * @param index the index of the case
-     * @return true if the case has a default value, false otherwise
+     * @param index the index of the cell
+     * @return true if the cell has a default value, false otherwise
      */
     public boolean isInitValue(int index) {
-        return cases[index].isInitValue();
+        return cells[index].isInitValue();
     }
 
     /**
-     * Fills the groups (lines, columns, big cases) of the sudoku with the cases
+     * Fills the groups (lines, columns, big cells) of the sudoku with the cells
      * stored in the array, it simplify the solving of the sudoku
      */
     private void fillGroups() {
@@ -193,28 +182,28 @@ public class Sudoku {
             //lines
             lines[i] = new Group();
             for (int j = i * 9; j < (i + 1) * 9; j++) {
-                lines[i].addCase(cases[j]);
+                lines[i].addCell(cells[j]);
             }
 
             //columns
             columns[i] = new Group();
             for (int j = i; j < 81; j += 9) {
-                columns[i].addCase(cases[j]);
+                columns[i].addCell(cells[j]);
             }
 
-            //big cases
-            bigCases[i] = new Group();
+            //big cells
+            bigCells[i] = new Group();
             for (int j = 0; j < 3; j++) {
                 for (int k = 0; k < 3; k++) {
-                    bigCases[i].addCase(cases[i * 3 + j * 9 + k + (18 * (i / 3))]);
+                    bigCells[i].addCell(cells[i * 3 + j * 9 + k + (18 * (i / 3))]);
                 }
             }
         }
     }
 
     /**
-     * Sets automatically a value for each case which has only one possible value.
-     * Adds all cases which has changed to the last list of the played cases
+     * Sets automatically a value for each cell which has only one possible value.
+     * Adds all cells which has changed to the last list of the played cells
      * if a choice was made earlier
      *
      * @return true if there was a change, false otherwise
@@ -222,11 +211,10 @@ public class Sudoku {
     private boolean setAutoValues() {
         boolean change = false;
         for (int i = 0; i < 81; i++) {
-            if (cases[i].setAutoValue()) {
-                Log.d(TAG, "Put value in case " + i + " : " + cases[i].getValue());
+            if (cells[i].setAutoValue()) {
                 change = true;
-                if (playedCasesAfterChoice.size() != 0) {
-                    playedCasesAfterChoice.get(playedCasesAfterChoice.size() - 1).add(i);
+                if (playedCellsAfterChoice.size() != 0) {
+                    playedCellsAfterChoice.get(playedCellsAfterChoice.size() - 1).add(i);
                 }
             }
         }
@@ -234,32 +222,30 @@ public class Sudoku {
     }
 
     /**
-     * Chooses the case with the less possible values, and then
+     * Chooses the cell with the less possible values, and then
      * chose a random value for it among its possible values.
-     * Error can occur if all the cases having a value of 0
+     * Error can occur if all the cells having a value of 0
      * have 0 possible value
      *
      * @return false if no error was detected, true otherwise
      */
     private boolean choseRandomValue() {
         boolean error = false;
-        Log.d(TAG, "No change : choice of random value...");
-        int chosenCase = -1;
+        int chosenCell = -1;
         int minNbPosVal = 10;
         for (int i = 0; i < 81; i++) {
-            int nbPosVal = cases[i].getNbPossibleValues();
-            if (nbPosVal < minNbPosVal && nbPosVal != 0 && cases[i].getValue() == 0) {
-                chosenCase = i;
+            int nbPosVal = cells[i].getNbPossibleValues();
+            if (nbPosVal < minNbPosVal && nbPosVal != 0 && cells[i].getValue() == 0) {
+                chosenCell = i;
                 minNbPosVal = nbPosVal;
             }
         }
-        if (chosenCase != -1) {
-            cases[chosenCase].setRandomValue();
-            Log.d(TAG, "chosen value for case " + chosenCase + " : " + cases[chosenCase].getValue());
+        if (chosenCell != -1) {
+            cells[chosenCell].setRandomValue();
 
             ArrayList<Integer> l = new ArrayList<>();
-            l.add(chosenCase);
-            playedCasesAfterChoice.add(l);
+            l.add(chosenCell);
+            playedCellsAfterChoice.add(l);
         } else {
             error = true;
         }
@@ -267,50 +253,44 @@ public class Sudoku {
     }
 
     /**
-     * Updates the possible values for all cases of the sudoku
+     * Updates the possible values of all cells
      */
     private void updatePossibleValues() {
-        for (Case c : cases) {
+        for (Cell c : cells) {
             c.resetPossibleValues();
         }
         for (int i = 0; i < 9; i++) {
             lines[i].updatePossibleValues();
             columns[i].updatePossibleValues();
-            bigCases[i].updatePossibleValues();
+            bigCells[i].updatePossibleValues();
         }
     }
 
     /**
      * When the sudoku is on error, if no choice was made, forces the end of resolution.
-     * If at least on choice was made, add the value chosen to the forbidden values of
-     * the case and sets the value to all played case since the choice to 0 (including
-     * the case on which the choice was made). Moreover, resets all forbidden values for
-     * each of these cases but the case on which the choice was made
+     * If at least one choice was made, add the chosen value to the forbidden values of
+     * the cell and resets the value of all played cells since that choice to 0 (including
+     * the cell on which the choice was made). Moreover, resets all forbidden values for
+     * each of these cells (excluding the cell on which the choice was made)
      */
     private void errorHandling() {
-        Log.d(TAG, "Errors in sudoku...");
-        Log.d(TAG, "Number of choices done : " + playedCasesAfterChoice.size());
-        if (playedCasesAfterChoice.size() != 0) {
-            int index = playedCasesAfterChoice.get(playedCasesAfterChoice.size() - 1).get(0);
+        if (playedCellsAfterChoice.size() != 0) {
+            //get first cell played after choice, hence the cell on which there was a choice
+            int index = playedCellsAfterChoice.get(playedCellsAfterChoice.size() - 1).get(0);
 
-            int forbiddenVal = cases[index].getValue();
+            int forbiddenVal = cells[index].getValue();
+            cells[index].setForbiddenValue(forbiddenVal);
 
-            Log.d(TAG, "Reset played values since change...");
-            for (Integer i : playedCasesAfterChoice.get(playedCasesAfterChoice.size() - 1)) {
-                cases[i].setValue(0);
+            //reset played values since choice
+            for (Integer i : playedCellsAfterChoice.get(playedCellsAfterChoice.size() - 1)) {
+                cells[i].setValue(0);
                 if (i != index) {
-                    cases[i].resetForbiddenValues();
-                    Log.d(TAG, "Case " + i);
+                    cells[i].resetForbiddenValues();
                 }
             }
 
-            Log.d(TAG, "Add to forbidden values of last chosen value for the case " + index + " : " + forbiddenVal);
-            cases[index].setForbiddenValue(forbiddenVal);
-
-            Log.d(TAG, "Fin du reset");
-            playedCasesAfterChoice.remove(playedCasesAfterChoice.size() - 1);
+            playedCellsAfterChoice.remove(playedCellsAfterChoice.size() - 1);
         } else {
-            Log.d(TAG, "No more choices, forced end");
             forceEnd = true;
         }
     }

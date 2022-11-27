@@ -2,7 +2,6 @@ package com.borisbordeaux.arsudokusolver.analyzer;
 
 import com.borisbordeaux.arsudokusolver.classifier.INumberClassifier;
 import com.borisbordeaux.arsudokusolver.model.Sudoku;
-import com.borisbordeaux.arsudokusolver.utils.Utils;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -22,42 +21,31 @@ public class ImageProcessor {
 
     private final Mat img;
     private final Mat rendered;
-    private MatOfPoint2f foundContours;
     private final MatOfPoint2f poly;
     private final Mat hierarchy;
     private final List<MatOfPoint> contours;
     private final List<MatOfPoint> contours_grille;
-
     private final Point[] ptsContour = new Point[4];
     private final MatOfPoint2f matPts;
     private final MatOfPoint2f matPtsContour = new MatOfPoint2f();
-
     private final MatOfPoint2f c2f = new MatOfPoint2f();
-
     private final int margin = 12;
     private final int caseSize = 80 + 2 * margin;
     private final int gridSize = 9 * caseSize;
-
     private final Size GRID_SIZE = new Size(gridSize, gridSize);
-    private final Size KERNEL = new Size(3, 3);
-
-    private boolean previousGrid;
-    private boolean hasToScan;
-    private final int[] grid;
-
-    //on cree les matrices dont on aura besoin pour ecrire
-    //les nombre sous forme de masque sur l'image de rendu
-    private Mat fondP;
     private final Mat fond = Mat.zeros(gridSize, gridSize, CvType.CV_8UC3);
-
+    private final int[] grid;
     private final Scalar WHITE = new Scalar(255, 255, 255);
     private final Scalar GREEN = new Scalar(0, 255, 0);
     private final Scalar ZERO = new Scalar(0, 0, 0);
-
     private final Point org = new Point();
-
     private final Sudoku sudoku;
-
+    private MatOfPoint2f foundContours;
+    private boolean previousGrid;
+    private boolean hasToScan;
+    //on cree les matrices dont on aura besoin pour ecrire
+    //les nombre sous forme de masque sur l'image de rendu
+    private Mat fondP;
     private INumberClassifier numberClassifier;
 
     public ImageProcessor() {
@@ -88,12 +76,12 @@ public class ImageProcessor {
         numberClassifier = null;
     }
 
-    public void setNumberClassifier(INumberClassifier numberClassifier) {
-        this.numberClassifier = numberClassifier;
-    }
-
     public INumberClassifier getNumberClassifier() {
         return numberClassifier;
+    }
+
+    public void setNumberClassifier(INumberClassifier numberClassifier) {
+        this.numberClassifier = numberClassifier;
     }
 
     private void processImage(Mat inputFrame, boolean finalProcess) {

@@ -1,0 +1,6 @@
+com.borisbordeaux.arsudokusolver
+com.borisbordeaux.arsudokusolver.analyzer
+com.borisbordeaux.arsudokusolver.classifier
+com.borisbordeaux.arsudokusolver.model
+com.borisbordeaux.arsudokusolver.utils.image
+com.borisbordeaux.arsudokusolver.utils.log

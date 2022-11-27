@@ -1,9 +1,7 @@
 package com.borisbordeaux.arsudokusolver;
 
-import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.widget.Button;
 import android.widget.Toast;
@@ -20,7 +18,9 @@ import androidx.core.content.ContextCompat;
 
 import com.borisbordeaux.arsudokusolver.analyzer.ImageAnalyzer;
 import com.borisbordeaux.arsudokusolver.classifier.TensorFlowNumberClassifier;
-import com.borisbordeaux.arsudokusolver.classifier.TesseractNumberClassifier;
+import com.borisbordeaux.arsudokusolver.utils.log.AndroidLogger;
+import com.borisbordeaux.arsudokusolver.utils.log.ConsoleLogger;
+import com.borisbordeaux.arsudokusolver.utils.log.ILogger;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.opencv.android.OpenCVLoader;
@@ -32,36 +32,39 @@ import jp.co.cyberagent.android.gpuimage.GPUImageView;
 public class MainActivity extends AppCompatActivity {
 
     //the tag for debug logs
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "MainActivityOpenCV";
+    private static final ILogger mLogger = new ConsoleLogger();
 
     //load opencv statically
     static {
-        if (OpenCVLoader.initDebug()) {
-            Log.d(TAG, "OpenCV is configured or connected successfully");
+        if (OpenCVLoader.initDebug(true)) {
+            mLogger.log(TAG, "OpenCV is configured or connected successfully");
         } else {
-            Log.d(TAG, "OpenCV not working or loaded");
+            mLogger.log(TAG, "OpenCV not working or loaded");
         }
     }
 
     //all required permissions (here only camera)
     private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA"};
+
     //the image analyzer to analyse the image in preview
-    ImageAnalyzer mAnalyzer;
+    private ImageAnalyzer mAnalyzer;
+
     //preview of the camera
-    private GPUImageView previewView;
-    //button to change the method used
-    private Button bChange;
+    private GPUImageView mPreviewView;
+
     //button to scan the image in preview
-    private Button bScan;
+    private Button mButtonScan;
+
     //the camera
-    private Camera camera;
+    private Camera mCamera;
+
     //the switch to switch on or switch off the torch
-    private SwitchCompat torchSwitch;
-    //the current classifier
-    private Classifier classifier = Classifier.NONE;
+    private SwitchCompat mTorchSwitch;
 
     /**
-     * Called 1 time when app open, init the app
+     * {@inheritDoc}
+     * Called 1 time when app opens, init the app
      *
      * @param savedInstanceState last instance state saved
      */
@@ -84,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Callback when user made his choice for requested permissions
+     * {@inheritDoc}
      *
      * @param requestCode  the code used when asked for permissions
      * @param permissions  the permissions the user accepted or not
@@ -122,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Starts the camera preview
      */
-    @SuppressLint("UnsafeOptInUsageError")
     public void startCamera() {
         //create the potential (future) camera provider
         //it will contains the camera provider when the
@@ -143,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
                 //Images are processed by passing an executor in which the image analysis is run
                 ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
 
+                //build the imageAnalysis
                 ImageAnalysis imageAnalysis = builder
                         //set the resolution of the view
                         .setTargetResolution(new android.util.Size(400, 400))
@@ -153,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                 imageAnalysis.setAnalyzer(getMainExecutor(), mAnalyzer);
 
                 // Attach use cases to the camera with the same lifecycle owner
-                camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis);
+                mCamera = cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis);
 
                 setListeners();
 
@@ -167,50 +170,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Sets listeners for events handling
+     * Sets listeners for events handling on scan button (touch)
+     * and preview view (long touch)
      */
     public void setListeners() {
-        //change the method used on click
-        bChange.setOnClickListener(view -> {
-            if (classifier.equals(Classifier.TENSORFLOW)) {
-                loadTesseract();
-            } else {
-                loadTensorflow();
-            }
-        });
-
         //scan the image on click
-        bScan.setOnClickListener(view -> mAnalyzer.rescan());
+        mButtonScan.setOnClickListener(view -> mAnalyzer.rescan());
 
         //change between display intermediate output
         //and processed image output with results
-        previewView.setOnLongClickListener(view -> {
+        mPreviewView.setOnLongClickListener(view -> {
             mAnalyzer.invertDisplayIntermediate();
             return true;
         });
 
-        torchSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> camera.getCameraControl().enableTorch(isChecked));
-    }
-
-    /**
-     * Loads the Tesseract classifier
-     */
-    private void loadTesseract() {
-        TesseractNumberClassifier nc = new TesseractNumberClassifier(getBaseContext());
-
-        Toast t = Toast.makeText(getBaseContext(), "", Toast.LENGTH_SHORT);
-        t.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);
-
-        if (nc.loadAssets()) {
-            mAnalyzer.setNumberClassifier(nc);
-            t.setText(R.string.tesseract);
-            classifier = Classifier.TESSERACT;
-        } else {
-            t.setText(R.string.error);
-            classifier = Classifier.NONE;
-        }
-
-        t.show();
+        mTorchSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> mCamera.getCameraControl().enableTorch(isChecked));
     }
 
     /**
@@ -225,36 +199,24 @@ public class MainActivity extends AppCompatActivity {
         if (nc.loadAssets()) {
             mAnalyzer.setNumberClassifier(nc);
             t.setText(R.string.tensorflow);
-            classifier = Classifier.TENSORFLOW;
         } else {
             t.setText(R.string.error);
-            classifier = Classifier.NONE;
         }
 
         t.show();
     }
 
+    /**
+     * Init the app (widgets, analyzer, camera and tensorflow model)
+     */
     private void init() {
         //get the widgets in the view
-        previewView = findViewById(R.id.previewView);
-        bChange = findViewById(R.id.change_method);
-        bScan = findViewById(R.id.analyze);
-        torchSwitch = findViewById(R.id.torch_switch);
+        mPreviewView = findViewById(R.id.previewView);
+        mButtonScan = findViewById(R.id.analyze);
+        mTorchSwitch = findViewById(R.id.torch_switch);
 
-        //create the image analyzer
-        mAnalyzer = new ImageAnalyzer(previewView);
-
-        //start the camera
+        mAnalyzer = new ImageAnalyzer(mPreviewView);
         startCamera();
-
-        //load tensorflow model by default
         loadTensorflow();
-    }
-
-    //enum for classifiers
-    private enum Classifier {
-        TESSERACT, //ocr classifier
-        TENSORFLOW, //cnn classifier
-        NONE //when no other classifier loaded
     }
 }

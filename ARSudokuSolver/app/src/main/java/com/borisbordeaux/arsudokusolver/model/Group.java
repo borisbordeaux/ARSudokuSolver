@@ -4,34 +4,34 @@ import java.util.ArrayList;
 
 public class Group {
 
-    //all the cases of the group
-    private final ArrayList<Case> cases;
+    //all the cells of the group
+    private final ArrayList<Cell> cells;
 
     /**
-     * Constructor
+     * Construct an empty group
      */
     public Group() {
-        cases = new ArrayList<>();
+        cells = new ArrayList<>();
     }
 
     /**
-     * Adds a case to the group
+     * Adds a cell to the group
      *
-     * @param c the case to add to the group
+     * @param c the cell to add to the group
      */
-    public void addCase(Case c) {
-        cases.add(c);
+    public void addCell(Cell c) {
+        cells.add(c);
     }
 
     /**
-     * Updates the possible values of the cases
-     * depending on the current values of the cases
+     * Updates the possible values of the cells
+     * depending on the current values of the cells
      */
     public void updatePossibleValues() {
-        for (Case c : cases) {
+        for (Cell c : cells) {
             int v = c.getValue();
             if (v != 0) {
-                for (Case c2 : cases) {
+                for (Cell c2 : cells) {
                     c2.removePossibleValue(v);
                 }
             }
@@ -47,7 +47,7 @@ public class Group {
     public boolean isError() {
         boolean error = false;
         ArrayList<Integer> list = new ArrayList<>();
-        for (Case c : cases) {
+        for (Cell c : cells) {
             int val = c.getValue();
             if (val != 0) {
                 if (list.contains(val)) {

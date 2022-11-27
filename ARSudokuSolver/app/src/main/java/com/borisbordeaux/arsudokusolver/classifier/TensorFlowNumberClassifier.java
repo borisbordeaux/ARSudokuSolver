@@ -1,11 +1,10 @@
 package com.borisbordeaux.arsudokusolver.classifier;
 
 import android.content.Context;
-import android.os.Environment;
 import android.os.FileUtils;
-import android.util.Log;
 
-import com.borisbordeaux.arsudokusolver.utils.Utils;
+import com.borisbordeaux.arsudokusolver.utils.log.AndroidLogger;
+import com.borisbordeaux.arsudokusolver.utils.log.ILogger;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -25,75 +24,66 @@ public class TensorFlowNumberClassifier implements INumberClassifier {
 
     //tag for debug logs
     private final String TAG = "OCR";
+    private final ILogger mLogger = new AndroidLogger();
 
     //context to get file directory
-    private final Context context;
-    private final String saveDir;
-    private final boolean saveImage;
-    private final Size size;
+    private final Context mContext;
+
+    private final Size size = new Size(28, 28);
+
     //resized mat for the inference
     //avoid a new each time, so we
     //gain performance
     Mat resized = new Mat();
-    private int counter;
+
     //opencv dnn net
-    private Net net;
+    private Net net = null;
 
     /**
-     * Constructor
+     * Constructor, needs to call load assets to use
      *
      * @param context the context to get file directory
      */
     public TensorFlowNumberClassifier(Context context) {
-        this.context = context;
-        this.counter = 0;
-        this.saveDir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/images/";
-        this.saveImage = false;
-
-        size = new Size(28, 28);
+        this.mContext = context;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param img the image that has to be classified
+     * @return the number detected in the image or 0 if the net was not loaded
+     */
     @Override
     public int getNumber(Mat img) {
-        //img is a 104x104x1 Mat
-        //resize the image to a 28x28x1 Mat
-        Imgproc.resize(img, resized, size);
+        if (net != null) {
+            //resize the image to a 28x28x1 Mat
+            Imgproc.resize(img, resized, size);
 
-        Log.d(TAG, "Size of image is : " + img.size().width + "/" + img.size().height);
+            Imgproc.threshold(img, img, 10, 255, Imgproc.THRESH_BINARY);
 
-        //use the mask to set borders to 0
-        //Core.subtract(resized, mask, resized);
+            //convert to a float image
+            resized.convertTo(resized, CvType.CV_32F, 1.0 / 255.0, 0);
 
-        Imgproc.threshold(img, img, 10, 255, Imgproc.THRESH_BINARY);
+            Mat blob = Dnn.blobFromImage(resized);
+            net.setInput(blob);
+            Mat result = net.forward();
 
-        //save input image
-        if (saveImage) {
-            Utils.saveMat(resized, saveDir, counter + ".png");
-            counter++;
-            counter %= 81;
+            //free the memory of the blob
+            blob.release();
+
+            //reshape the resulting blob to get a Mat with 10 elements
+            result.reshape(10);
+
+            int res = softMax(result);
+
+            //free the memory of the result
+            result.release();
+
+            return res;
+        } else {
+            return 0;
         }
-
-        //convert to a float image
-        resized.convertTo(resized, CvType.CV_32F, 1.0 / 255.0, 0);
-
-        //create a Binary Large Object based on the image
-        Mat blob = Dnn.blobFromImage(resized);
-        //set blob as input
-        net.setInput(blob);
-        //make the inference
-        Mat result = net.forward();
-        //release the memory of the blob since it will not be used after
-        blob.release();
-        //reshape the resulting blob to get a Mat with 10 elements
-        result.reshape(10);
-
-        Log.d(TAG, "size of the result " + result.size().toString() + " of type " + result.type());
-        int res = softMax(result);
-
-        //free the memory of the result
-        result.release();
-
-        return res;
     }
 
     /**
@@ -106,35 +96,35 @@ public class TensorFlowNumberClassifier implements INumberClassifier {
 
         String dataPath = "";
         try {
-            InputStream is = context.getAssets().open("frozen_graph.pb");
-            File dir = new File(context.getFilesDir().getAbsolutePath() + "/graph/");
+            InputStream is = mContext.getAssets().open("frozen_graph.pb");
+            File dir = new File(mContext.getFilesDir().getAbsolutePath() + "/graph/");
             if (!dir.exists()) {
                 if (dir.mkdir()) {
-                    Log.d(TAG, "Directory created !");
+                    mLogger.log(TAG, "Directory created !");
                 } else {
-                    Log.d(TAG, "Directory not created !");
+                    mLogger.log(TAG, "Directory not created !");
                 }
             } else {
-                Log.d(TAG, "Directory already exists !");
+                mLogger.log(TAG, "Directory already exists !");
             }
-            Log.d(TAG, "directory is " + dir.getAbsolutePath());
+            mLogger.log(TAG, "directory is " + dir.getAbsolutePath());
 
-            File f = new File(context.getFilesDir().getAbsolutePath() + "/graph/frozen_graph.pb");
+            File f = new File(mContext.getFilesDir().getAbsolutePath() + "/graph/frozen_graph.pb");
             if (f.createNewFile()) {
-                Log.d(TAG, "File created !");
+                mLogger.log(TAG, "File created !");
                 OutputStream os = new FileOutputStream(f);
 
                 FileUtils.copy(is, os);
-                Log.d(TAG, "File copied !");
+                mLogger.log(TAG, "File copied !");
             } else {
-                Log.d(TAG, "File already exists");
+                mLogger.log(TAG, "File already exists");
             }
             dataPath = f.getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Log.d(TAG, "data path is " + dataPath);
+        mLogger.log(TAG, "data path is " + dataPath);
 
         if (!"".equals(dataPath)) {
             net = Dnn.readNetFromTensorflow(dataPath);
@@ -154,7 +144,7 @@ public class TensorFlowNumberClassifier implements INumberClassifier {
         float[] data = new float[10];
         result.get(0, 0, data);
 
-        Log.d(TAG, "the result " + Arrays.toString(data));
+        mLogger.log(TAG, "the result " + Arrays.toString(data));
 
         int val = 0;
         float max = data[0];
@@ -165,7 +155,7 @@ public class TensorFlowNumberClassifier implements INumberClassifier {
             }
         }
 
-        Log.d(TAG, "the number found is " + val + " with confidence " + max);
+        mLogger.log(TAG, "the number found is " + val + " with confidence " + max);
 
         //if confidence is less than 99%, set to 0
         //avoid unsure and false values
