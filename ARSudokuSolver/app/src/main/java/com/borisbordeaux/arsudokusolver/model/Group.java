@@ -17,7 +17,7 @@ public class Group {
     /**
      * Adds a cell to the group
      *
-     * @param c the cell to add to the group
+     * @param c the {@link Cell} to add to the group
      */
     public void addCell(Cell c) {
         cells.add(c);
@@ -25,7 +25,7 @@ public class Group {
 
     /**
      * Updates the possible values of the cells
-     * depending on the current values of the cells
+     * depending on their current values
      */
     public void updatePossibleValues() {
         for (Cell c : cells) {

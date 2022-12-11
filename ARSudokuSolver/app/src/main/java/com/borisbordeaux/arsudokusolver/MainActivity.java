@@ -18,7 +18,6 @@ import androidx.core.content.ContextCompat;
 
 import com.borisbordeaux.arsudokusolver.analyzer.ImageAnalyzer;
 import com.borisbordeaux.arsudokusolver.classifier.TensorFlowNumberClassifier;
-import com.borisbordeaux.arsudokusolver.utils.log.AndroidLogger;
 import com.borisbordeaux.arsudokusolver.utils.log.ConsoleLogger;
 import com.borisbordeaux.arsudokusolver.utils.log.ILogger;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -180,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         //change between display intermediate output
         //and processed image output with results
         mPreviewView.setOnLongClickListener(view -> {
-            mAnalyzer.invertDisplayIntermediate();
+            mAnalyzer.toggleDisplayIntermediate();
             return true;
         });
 

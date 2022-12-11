@@ -14,10 +14,10 @@ import java.nio.ByteBuffer;
 public class ImageConverter {
 
     /**
-     * Creates a bitmap image based on the data of the given Mat
+     * Creates a {@link Bitmap} image based on the data of the given {@link Mat}
      *
-     * @param img the Mat the bitmap will be based on
-     * @return the bitmap created
+     * @param img the {@link Mat} the {@link Bitmap} will be based on
+     * @return the {@link Bitmap} created
      */
     public static Bitmap MatToBitmap(@NotNull Mat img) {
         Bitmap bmp = Bitmap.createBitmap(img.cols(), img.rows(), Bitmap.Config.ARGB_8888);
@@ -26,25 +26,25 @@ public class ImageConverter {
     }
 
     /**
-     * Fills a bitmap image based on the data of the given Mat
+     * Fills a {@link Bitmap} image based on the data of the given {@link Mat}
      *
-     * @param img the Mat the bitmap will be based on
-     * @param bmp the Bitmap that will be filled
+     * @param img the {@link Mat} the {@link Bitmap} will be based on
+     * @param bmp the {@link Bitmap} that will be filled
      */
     public static void MatToBitmap(@NotNull Mat img, @NotNull Bitmap bmp) {
         org.opencv.android.Utils.matToBitmap(img, bmp);
     }
 
     /**
-     * Converts given ImageProxy YUV image into RGB to fill the given Mat
+     * Converts given {@link ImageProxy} YUV image into RGB to fill the given {@link Mat}
      *
-     * @param image the YUV image to convert
-     * @param rgb   the Mat that will contain the RGB version of the image
+     * @param src the YUV image to convert
+     * @param dst the {@link Mat} that will contain the RGB version of the image
      */
-    public static void convYUV2RGB(@NotNull ImageProxy image, @NotNull Mat rgb) {
-        ByteBuffer yBuffer = image.getPlanes()[0].getBuffer();
-        ByteBuffer uBuffer = image.getPlanes()[1].getBuffer();
-        ByteBuffer vBuffer = image.getPlanes()[2].getBuffer();
+    public static void convYUV2RGB(@NotNull ImageProxy src, @NotNull Mat dst) {
+        ByteBuffer yBuffer = src.getPlanes()[0].getBuffer();
+        ByteBuffer uBuffer = src.getPlanes()[1].getBuffer();
+        ByteBuffer vBuffer = src.getPlanes()[2].getBuffer();
 
         int ySize = yBuffer.remaining();
         int uSize = uBuffer.remaining();
@@ -57,9 +57,9 @@ public class ImageConverter {
         vBuffer.get(nv21Data, ySize, vSize);
         uBuffer.get(nv21Data, ySize + vSize, uSize);
 
-        Mat mYuv = new Mat(image.getHeight() + image.getHeight() / 2, image.getWidth(), CvType.CV_8UC1);
+        Mat mYuv = new Mat(src.getHeight() + src.getHeight() / 2, src.getWidth(), CvType.CV_8UC1);
         mYuv.put(0, 0, nv21Data);
-        Imgproc.cvtColor(mYuv, rgb, Imgproc.COLOR_YUV2RGB_NV21, 3);
+        Imgproc.cvtColor(mYuv, dst, Imgproc.COLOR_YUV2RGB_NV21, 3);
         mYuv.release();
     }
 }

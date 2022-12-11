@@ -23,7 +23,7 @@ public class Sudoku {
     private boolean forceEnd;
 
     /**
-     * Constructs an empty sudoku with all groups initialized
+     * Constructs an empty sudoku with all {@link Group groups} initialized
      */
     public Sudoku() {
         for (int i = 0; i < 81; i++) {
@@ -35,9 +35,9 @@ public class Sudoku {
     }
 
     /**
-     * Sets the given value for the cell at the given index
+     * Sets the given value for the {@link Cell cell} at the given index
      *
-     * @param index the index of the cell, must be in [0..80]
+     * @param index the index of the {@link Cell cell}, must be in [0..80]
      * @param value the value to set, must be in [0..9]
      */
     public void setValue(int index, int value) {
@@ -47,9 +47,9 @@ public class Sudoku {
     }
 
     /**
-     * Sets the given value as default value for the cell at the given index
+     * Sets the given value as default value for the {@link Cell cell} at the given index
      *
-     * @param index the index of the cell, must be in [0..80]
+     * @param index the index of the {@link Cell cell}, must be in [0..80]
      * @param value the value to set, must be in [0..9]
      */
     public void setInitValue(int index, int value) {
@@ -130,8 +130,7 @@ public class Sudoku {
             error = choseRandomValue();
         }
 
-        if (!error)
-            error = isError();
+        if (!error) error = isError();
 
         if (error) {
             errorHandling();
@@ -154,28 +153,28 @@ public class Sudoku {
     }
 
     /**
-     * Getter for the value of the cell at the given index
+     * Getter for the value of the {@link Cell cell} at the given index
      *
-     * @param index the index of the cell
-     * @return the value of the cell at the given index
+     * @param index the index of the {@link Cell cell}
+     * @return the value of the {@link Cell cell} at the given index
      */
     public int getValue(int index) {
         return cells[index].getValue();
     }
 
     /**
-     * Indicates whether the cell at the given index has a default value or not
+     * Indicates whether the {@link Cell cell} at the given index has a default value or not
      *
-     * @param index the index of the cell
-     * @return true if the cell has a default value, false otherwise
+     * @param index the index of the {@link Cell cell}
+     * @return true if the {@link Cell cell} has a default value, false otherwise
      */
     public boolean isInitValue(int index) {
         return cells[index].isInitValue();
     }
 
     /**
-     * Fills the groups (lines, columns, big cells) of the sudoku with the cells
-     * stored in the array, it simplify the solving of the sudoku
+     * Fills the {@link Group groups} (lines, columns, big cells) of the sudoku with
+     * the {@link Cell cells} stored in the array, it simplify the solving of the sudoku
      */
     private void fillGroups() {
         for (int i = 0; i < 9; i++) {
@@ -202,8 +201,8 @@ public class Sudoku {
     }
 
     /**
-     * Sets automatically a value for each cell which has only one possible value.
-     * Adds all cells which has changed to the last list of the played cells
+     * Sets automatically a value for each {@link Cell cell} which has only one possible value.
+     * Adds all cells which has changed to the last list of the played {@link Cell cells}
      * if a choice was made earlier
      *
      * @return true if there was a change, false otherwise
@@ -222,9 +221,9 @@ public class Sudoku {
     }
 
     /**
-     * Chooses the cell with the less possible values, and then
+     * Chooses the {@link Cell cell} with the less possible values, and then
      * chose a random value for it among its possible values.
-     * Error can occur if all the cells having a value of 0
+     * Error can occur if all the {@link Cell cells} having a value of 0
      * have 0 possible value
      *
      * @return false if no error was detected, true otherwise
@@ -253,7 +252,7 @@ public class Sudoku {
     }
 
     /**
-     * Updates the possible values of all cells
+     * Updates the possible values of all {@link Cell cells}
      */
     private void updatePossibleValues() {
         for (Cell c : cells) {
@@ -269,9 +268,9 @@ public class Sudoku {
     /**
      * When the sudoku is on error, if no choice was made, forces the end of resolution.
      * If at least one choice was made, add the chosen value to the forbidden values of
-     * the cell and resets the value of all played cells since that choice to 0 (including
+     * the {@link Cell cell} and resets the value of all played {@link Cell cells} since that choice to 0 (including
      * the cell on which the choice was made). Moreover, resets all forbidden values for
-     * each of these cells (excluding the cell on which the choice was made)
+     * each of these {@link Cell cells} (excluding the {@link Cell cell} on which the choice was made)
      */
     private void errorHandling() {
         if (playedCellsAfterChoice.size() != 0) {

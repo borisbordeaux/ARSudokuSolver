@@ -18,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 
 public class TensorFlowNumberClassifier implements INumberClassifier {
 
@@ -30,11 +29,6 @@ public class TensorFlowNumberClassifier implements INumberClassifier {
     private final Context mContext;
 
     private final Size size = new Size(28, 28);
-
-    //resized mat for the inference
-    //avoid a new each time, so we
-    //gain performance
-    Mat resized = new Mat();
 
     //opencv dnn net
     private Net net = null;
@@ -57,10 +51,12 @@ public class TensorFlowNumberClassifier implements INumberClassifier {
     @Override
     public int getNumber(Mat img) {
         if (net != null) {
+            Mat resized = new Mat();
+
             //resize the image to a 28x28x1 Mat
             Imgproc.resize(img, resized, size);
 
-            Imgproc.threshold(img, img, 10, 255, Imgproc.THRESH_BINARY);
+            Imgproc.threshold(resized, resized, 10, 255, Imgproc.THRESH_BINARY);
 
             //convert to a float image
             resized.convertTo(resized, CvType.CV_32F, 1.0 / 255.0, 0);
@@ -69,16 +65,15 @@ public class TensorFlowNumberClassifier implements INumberClassifier {
             net.setInput(blob);
             Mat result = net.forward();
 
-            //free the memory of the blob
-            blob.release();
-
             //reshape the resulting blob to get a Mat with 10 elements
             result.reshape(10);
 
             int res = softMax(result);
 
-            //free the memory of the result
+            //free the memory
+            blob.release();
             result.release();
+            resized.release();
 
             return res;
         } else {
@@ -135,16 +130,14 @@ public class TensorFlowNumberClassifier implements INumberClassifier {
     }
 
     /**
-     * Does a softmax on the given array
+     * Does a softmax on the given {@link Mat} containing the results of the neural network
      *
-     * @param result the Mat containing inference results
+     * @param result the {@link Mat} containing inference results
      * @return the index where the value is the higher in the data array
      */
     private int softMax(Mat result) {
         float[] data = new float[10];
         result.get(0, 0, data);
-
-        mLogger.log(TAG, "the result " + Arrays.toString(data));
 
         int val = 0;
         float max = data[0];
@@ -155,12 +148,9 @@ public class TensorFlowNumberClassifier implements INumberClassifier {
             }
         }
 
-        mLogger.log(TAG, "the number found is " + val + " with confidence " + max);
-
         //if confidence is less than 99%, set to 0
         //avoid unsure and false values
-        if (max < 0.99)
-            val = 0;
+        if (max < 0.99) val = 0;
 
         return val;
     }

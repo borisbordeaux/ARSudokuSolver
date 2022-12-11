@@ -18,7 +18,7 @@ public class Cell {
     private boolean mIsInitValue;
 
     /**
-     * Construct a cell with a default value of 0
+     * Constructs a cell with a default value of 0
      */
     public Cell() {
         mValue = 0;

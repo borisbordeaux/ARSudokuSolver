@@ -7,11 +7,10 @@ import androidx.camera.core.ImageProxy;
 
 import com.borisbordeaux.arsudokusolver.classifier.INumberClassifier;
 import com.borisbordeaux.arsudokusolver.utils.image.ImageConverter;
-import com.borisbordeaux.arsudokusolver.utils.log.AndroidLogger;
-import com.borisbordeaux.arsudokusolver.utils.log.ILogger;
 
 import org.jetbrains.annotations.NotNull;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -20,69 +19,86 @@ import jp.co.cyberagent.android.gpuimage.GPUImageView;
 
 public class ImageAnalyzer implements Analyzer {
 
-    private static final String TAG = "Analyzer";
-    private final ILogger mLogger = new AndroidLogger();
     private final Size SQUARE_SIZE = new Size(480, 480);
     private final GPUImageView mPreviewView;
     private final ImageProcessor mImageProcessor = new ImageProcessor();
-    private final Mat mOutput = new Mat();
-    private final Mat mRGB = new Mat();
-    private Bitmap mBmp = null;
     private boolean mDisplayIntermediate = false;
+    private Bitmap bmp;
+    private Mat rgb;
+    private Mat output;
 
+    /**
+     * Constructor, initializes the preview on which the result will be drawn
+     *
+     * @param view the view that will display the result
+     */
     public ImageAnalyzer(GPUImageView view) {
         this.mPreviewView = view;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param image the image to analyze
+     */
     @Override
     public void analyze(@NotNull ImageProxy image) {
-
         //convert image Yuv to Mat RGB
-        processInput(image);
+        //rotate the image because native image is rotated
+        //resize to a square image
+        if (rgb == null)
+            rgb = new Mat(image.getWidth(), image.getHeight(), CvType.CV_8UC3);
+        ImageConverter.convYUV2RGB(image, rgb);
+        Core.rotate(rgb, rgb, Core.ROTATE_90_CLOCKWISE);
+        Imgproc.resize(rgb, rgb, SQUARE_SIZE);
 
+        //fill output image
+        if (output == null)
+            output = new Mat(SQUARE_SIZE, CvType.CV_8UC3);
         if (mImageProcessor.getNumberClassifier() != null) {
             if (mDisplayIntermediate) {
-                mImageProcessor.getIntermediate(mRGB, mOutput);
+                mImageProcessor.getIntermediate(rgb, output);
             } else {
-                mImageProcessor.getFinalImage(mRGB, mOutput);
+                mImageProcessor.getFinalImage(rgb, output);
             }
         } else {
-            mRGB.copyTo(mOutput);
+            rgb.copyTo(output);
         }
 
-        processOutput();
+        //display output image
+        if (bmp == null)
+            bmp = Bitmap.createBitmap(output.cols(), output.rows(), Bitmap.Config.ARGB_8888);
+        ImageConverter.MatToBitmap(output, bmp);
+        mPreviewView.post(() -> mPreviewView.setImage(bmp));
 
+        //free memory
         image.close();
+        rgb.release();
+        output.release();
     }
 
-    public void invertDisplayIntermediate() {
+    /**
+     * Toggles the output of the analysis to display intermediate image or final image
+     */
+    public void toggleDisplayIntermediate() {
         mDisplayIntermediate = !mDisplayIntermediate;
     }
 
+    /**
+     * Forces a scan of the grid and the sudoku resolution
+     * the next time a grid is detected on the screen
+     */
     public void rescan() {
         mImageProcessor.reScan();
     }
 
+    /**
+     * Setter for the number classifier to use when processing the image
+     *
+     * @param classifier the classifier to set
+     */
     public void setNumberClassifier(INumberClassifier classifier) {
         mImageProcessor.setNumberClassifier(classifier);
-    }
-
-    private void processInput(@NotNull ImageProxy image) {
-        ImageConverter.convYUV2RGB(image, mRGB);
-
-        Core.rotate(mRGB, mRGB, Core.ROTATE_90_CLOCKWISE);
-        Imgproc.resize(mRGB, mRGB, SQUARE_SIZE);
-
-        mLogger.log(TAG, "new image size : " + mRGB.size().toString());
-    }
-
-    private void processOutput() {
-        if (mBmp == null) {
-            mBmp = Bitmap.createBitmap(mOutput.cols(), mOutput.rows(), Bitmap.Config.ARGB_8888);
-        }
-        ImageConverter.MatToBitmap(mOutput, mBmp);
-
-        mPreviewView.post(() -> mPreviewView.setImage(mBmp));
     }
 
 }

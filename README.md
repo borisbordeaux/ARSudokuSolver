@@ -6,7 +6,7 @@ To do so, the app scans a grid of Sudoku using the camera. When a grid is detect
 
 ## How to build
 
-Clone this repo and add a `local.properties` file at the Android app folder root:  
+Clone this repo and add a `local.properties` file at the root folder of the Android app:  
 ```bash
 git clone https://github.com/borisbordeaux/ARSudokuSolver.git
 cd ARSudokuSolver/ARSudokuSolver
@@ -85,7 +85,7 @@ At the end of that loop, if there is no error, the sudoku is solved. If there ar
 ## Neural Network
 
 About the neural network, I am still working on it. I have some problems when filming a screen because of the Moiré pattern that appears on the picture.  
-During the threshold operation, it makes appear a lot of noise hence it is difficult to the AI to find the right number in the cell. The following pictures show some cells obtained after threshold when there is Moiré noise :  
+During the threshold operation, it makes appear a lot of noise hence it is difficult for the AI to find the right number in the cell. The following pictures show some cells obtained after threshold when there is Moiré noise :  
 <img src="./pictures/1_noisy.jpg" alt="Little square" width="80px">
 <img src="./pictures/2_noisy.jpg" alt="Little square" width="80px">
 <img src="./pictures/3_noisy.jpg" alt="Little square" width="80px">
