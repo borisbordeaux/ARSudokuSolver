@@ -67,7 +67,7 @@ public class ImageProcessor {
      * @param dst the image that will be filled
      */
     public void getFinalImage(@NotNull Mat src, @NotNull Mat dst) {
-        adaptativeThreshold(src, workingImg);
+        adaptiveThreshold(src, workingImg);
         src.copyTo(dst);
 
         MatOfPoint2f foundContour = findContours(workingImg);
@@ -110,13 +110,13 @@ public class ImageProcessor {
 
     /**
      * Getter for the intermediate image, which is the
-     * input image with an adaptative threshold filter
+     * input image with an adaptive threshold filter
      *
      * @param src the input image to get the threshold filter
      * @param dst the thresholded image that will be filled
      */
     public void getIntermediate(@NotNull Mat src, @NotNull Mat dst) {
-        adaptativeThreshold(src, dst);
+        adaptiveThreshold(src, dst);
     }
 
     /**
@@ -128,13 +128,13 @@ public class ImageProcessor {
     }
 
     /**
-     * Processes the adaptative threshold on the src {@link Mat}
+     * Processes the adaptive threshold on the src {@link Mat}
      * and fills the dst {@link Mat} with the result
      *
      * @param src the {@link Mat} to filter
      * @param dst the {@link Mat} that will contain the result
      */
-    private void adaptativeThreshold(@NotNull Mat src, @NotNull Mat dst) {
+    private void adaptiveThreshold(@NotNull Mat src, @NotNull Mat dst) {
         Imgproc.cvtColor(src, dst, Imgproc.COLOR_RGB2GRAY);
         Imgproc.adaptiveThreshold(dst, dst, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY_INV, 13, 5);
     }
@@ -142,8 +142,8 @@ public class ImageProcessor {
     /**
      * Finds the max area quadrilateral contour in the given {@link Mat}
      *
-     * @param src a {@link Mat} that should be thresholded with the {@link #adaptativeThreshold} function
-     * @return a {@link MatOfPoint2f} containing the contour found in the image
+     * @param src a Mat that should be thresholded with the {@link #adaptiveThreshold} function
+     * @return a MatOfPoint2f containing the contour found in the image
      */
     private MatOfPoint2f findContours(@NotNull Mat src) {
         MatOfPoint2f foundContour = null;
@@ -182,10 +182,10 @@ public class ImageProcessor {
     }
 
     /**
-     * Draws the given contour in the given {@Mat}
+     * Draws the given contour in the given Mat
      *
      * @param contour the contour to draw
-     * @param dst     the {@link Mat} on which the contour will be drawn
+     * @param dst     the Mat on which the contour will be drawn
      */
     private void drawContour(MatOfPoint2f contour, Mat dst) {
         List<MatOfPoint> contours = new ArrayList<>();
@@ -194,15 +194,16 @@ public class ImageProcessor {
     }
 
     /**
-     * Sorts the given {@link MatOfPoint2f} containing 4 points in the following order:
+     * Sorts the given MatOfPoint2f containing 4 points in the following order:
      * top left, top right, bottom right, bottom left
      *
      * @param pts the points to sort
-     * @return a {@link MatOfPoint2f} of sorted points or null if there are not 4 points to sort
+     * @return a MatOfPoint2f of sorted points or null if there are not 4 points to sort
      */
     private MatOfPoint2f sortPoints(MatOfPoint2f pts) {
 
         List<Point> listPoints = pts.toList();
+        MatOfPoint2f result = new MatOfPoint2f();
 
         if (listPoints.size() == 4) {
             //sort points left to right
@@ -223,12 +224,9 @@ public class ImageProcessor {
             }
 
             //create result from the list
-            MatOfPoint2f result = new MatOfPoint2f();
             result.fromList(listPoints);
-            return result;
-        } else {
-            return null;
         }
+        return result;
     }
 
     /**

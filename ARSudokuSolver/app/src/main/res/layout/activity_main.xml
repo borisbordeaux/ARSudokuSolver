@@ -25,12 +25,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <jp.co.cyberagent.android.gpuimage.GPUImageView
+            <ImageView
                 android:id="@+id/previewView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:contentDescription="@string/video_preview">
 
-            </jp.co.cyberagent.android.gpuimage.GPUImageView>
+            </ImageView>
         </FrameLayout>
 
         <androidx.appcompat.widget.SwitchCompat
@@ -44,6 +45,17 @@
             app:layout_constraintTop_toTopOf="parent">
 
         </androidx.appcompat.widget.SwitchCompat>
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:contentDescription="@string/logo"
+            app:layout_constraintBottom_toTopOf="@+id/container"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/torch_switch"
+            app:srcCompat="@mipmap/ic_launcher_sudoku" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <Button

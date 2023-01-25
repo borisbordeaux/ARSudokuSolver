@@ -6,4 +6,6 @@
     <string name="tensorflow">Tensorflow used</string>
     <string name="tesseract">Tesseract used</string>
     <string name="error">/!\\</string>
+    <string name="video_preview">video preview</string>
+    <string name="logo">Logo</string>
 </resources>

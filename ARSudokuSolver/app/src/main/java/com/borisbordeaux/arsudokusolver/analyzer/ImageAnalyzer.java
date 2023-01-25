@@ -1,6 +1,7 @@
 package com.borisbordeaux.arsudokusolver.analyzer;
 
 import android.graphics.Bitmap;
+import android.widget.ImageView;
 
 import androidx.camera.core.ImageAnalysis.Analyzer;
 import androidx.camera.core.ImageProxy;
@@ -15,12 +16,10 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import jp.co.cyberagent.android.gpuimage.GPUImageView;
-
 public class ImageAnalyzer implements Analyzer {
 
     private final Size SQUARE_SIZE = new Size(480, 480);
-    private final GPUImageView mPreviewView;
+    private final ImageView mPreviewView;
     private final ImageProcessor mImageProcessor = new ImageProcessor();
     private boolean mDisplayIntermediate = false;
     private Bitmap bmp;
@@ -32,7 +31,7 @@ public class ImageAnalyzer implements Analyzer {
      *
      * @param view the view that will display the result
      */
-    public ImageAnalyzer(GPUImageView view) {
+    public ImageAnalyzer(ImageView view) {
         this.mPreviewView = view;
     }
 
@@ -69,7 +68,7 @@ public class ImageAnalyzer implements Analyzer {
         if (bmp == null)
             bmp = Bitmap.createBitmap(output.cols(), output.rows(), Bitmap.Config.ARGB_8888);
         ImageConverter.MatToBitmap(output, bmp);
-        mPreviewView.post(() -> mPreviewView.setImage(bmp));
+        mPreviewView.post(() -> mPreviewView.setImageBitmap(bmp));
 
         //free memory
         image.close();

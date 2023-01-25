@@ -4,6 +4,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,8 +26,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.opencv.android.OpenCVLoader;
 
 import java.util.concurrent.ExecutionException;
-
-import jp.co.cyberagent.android.gpuimage.GPUImageView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageAnalyzer mAnalyzer;
 
     //preview of the camera
-    private GPUImageView mPreviewView;
+    private ImageView mPreviewView;
 
     //button to scan the image in preview
     private Button mButtonScan;

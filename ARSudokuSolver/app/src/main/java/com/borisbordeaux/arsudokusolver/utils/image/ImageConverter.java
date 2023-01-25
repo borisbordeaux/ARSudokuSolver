@@ -14,10 +14,10 @@ import java.nio.ByteBuffer;
 public class ImageConverter {
 
     /**
-     * Creates a {@link Bitmap} image based on the data of the given {@link Mat}
+     * Creates a Bitmap image based on the data of the given Mat
      *
-     * @param img the {@link Mat} the {@link Bitmap} will be based on
-     * @return the {@link Bitmap} created
+     * @param img the Mat the Bitmap will be based on
+     * @return the Bitmap created
      */
     public static Bitmap MatToBitmap(@NotNull Mat img) {
         Bitmap bmp = Bitmap.createBitmap(img.cols(), img.rows(), Bitmap.Config.ARGB_8888);
@@ -26,20 +26,20 @@ public class ImageConverter {
     }
 
     /**
-     * Fills a {@link Bitmap} image based on the data of the given {@link Mat}
+     * Fills a Bitmap image based on the data of the given Mat
      *
-     * @param img the {@link Mat} the {@link Bitmap} will be based on
-     * @param bmp the {@link Bitmap} that will be filled
+     * @param img the Mat the Bitmap will be based on
+     * @param bmp the Bitmap that will be filled
      */
     public static void MatToBitmap(@NotNull Mat img, @NotNull Bitmap bmp) {
         org.opencv.android.Utils.matToBitmap(img, bmp);
     }
 
     /**
-     * Converts given {@link ImageProxy} YUV image into RGB to fill the given {@link Mat}
+     * Converts given ImageProxy YUV image into RGB to fill the given Mat
      *
      * @param src the YUV image to convert
-     * @param dst the {@link Mat} that will contain the RGB version of the image
+     * @param dst the Mat that will contain the RGB version of the image
      */
     public static void convYUV2RGB(@NotNull ImageProxy src, @NotNull Mat dst) {
         ByteBuffer yBuffer = src.getPlanes()[0].getBuffer();

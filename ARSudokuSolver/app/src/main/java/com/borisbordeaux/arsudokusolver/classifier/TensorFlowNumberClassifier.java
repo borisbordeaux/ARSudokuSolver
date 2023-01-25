@@ -14,10 +14,10 @@ import org.opencv.dnn.Net;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 
 public class TensorFlowNumberClassifier implements INumberClassifier {
 
@@ -107,7 +107,7 @@ public class TensorFlowNumberClassifier implements INumberClassifier {
             File f = new File(mContext.getFilesDir().getAbsolutePath() + "/graph/frozen_graph.pb");
             if (f.createNewFile()) {
                 mLogger.log(TAG, "File created !");
-                OutputStream os = new FileOutputStream(f);
+                OutputStream os = Files.newOutputStream(f.toPath());
 
                 FileUtils.copy(is, os);
                 mLogger.log(TAG, "File copied !");
@@ -130,9 +130,9 @@ public class TensorFlowNumberClassifier implements INumberClassifier {
     }
 
     /**
-     * Does a softmax on the given {@link Mat} containing the results of the neural network
+     * Does a softmax on the given Mat containing the results of the neural network
      *
-     * @param result the {@link Mat} containing inference results
+     * @param result the Mat containing inference results
      * @return the index where the value is the higher in the data array
      */
     private int softMax(Mat result) {
