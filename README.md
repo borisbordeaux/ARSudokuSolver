@@ -2,7 +2,7 @@
 
 This project is a Sudoku solver application for Android in augmented reality (AR).  
 It uses OpenCV for all image processing.  
-To do so, the app scans a grid of Sudoku using the camera. When a grid is detected (explained how in the pipeline), the user can ask to solve it. The sudoku is then solved once and it stays solved and displayed while the current sudoku is detected (computed each frame). When a new sudoku is detected, the user has to ask again to solve the sudoku. Doing this way allows this app to run easily at 30 fps on a mobile phone.
+To do so, the app scans a grid of Sudoku using the camera. When a grid is detected (explained how in the pipeline), the user can ask to solve it. The sudoku is then solved once and it stays solved and displayed while the same sudoku is detected (computed each frame). When a new sudoku is detected, the user has to ask again to solve the sudoku. Doing this way allows this app to run easily at 30 fps on a mobile phone.
 
 ## How to build
 
@@ -28,8 +28,8 @@ I use the camera to get the picture.
 
 ### Step 2
 
-I use the adaptativeThreshold function to highlight the contours.  
-![Results of the adaptative threshold](./pictures/step2.jpg)
+I use the adaptiveThreshold function to highlight the contours.  
+![Results of the adaptive threshold](./pictures/step2.jpg)
 
 ### Step 3
 
@@ -44,7 +44,7 @@ I use the getPerspectiveTransform function to find the transformation to get a s
 ### Step 5
 
 I divide the grid into 81 images for each cell, following pictures are some examples.  
-Then I use a neural network to deduce the number of each cell (or 0 if there is no number).  
+Then I use a neural network to deduce the number in each cell (0 if there is no number).  
 <img src="./pictures/1.jpg" alt="Little square" width="80px">
 <img src="./pictures/2.jpg" alt="Little square" width="80px">
 <img src="./pictures/3.jpg" alt="Little square" width="80px">
@@ -59,7 +59,7 @@ I use an algorithm (explained after) to solve the sudoku. Then, I write each val
 
 ### Step 7
 
-I use the transformation from the square to the quadrilateral made of the contours of the detected grid to project the numbers at the place of the grid.  
+I use the transformation from the square to the quadrilateral representing the contours of the detected grid to project the numbers at the place of the grid.  
 ![Completed sudoku projected](./pictures/step6.jpg)
 
 ### Step 8
@@ -101,7 +101,7 @@ I have then 2 possibilities:
 
 I tried to generate the noise using thresholded Perlin noise with different parameters, following picture gives the result I have.  
 <img src="./pictures/perlin_noise_280x280_10octaves.png" alt="Perlin noise" width="480px">  
-I want to use this noise to improve the dataset, but for now it does not give good results. I should retry with bigger images, maybe 64x64 instead of 28x28 or even bigger depending on the performance I have when using a phone.
+I want to use this noise to improve the dataset, but for now it does not give good enough results. I should retry with bigger images, maybe 64x64 instead of 28x28 or even bigger depending on the performance I have when using a phone.
 
 ### Remove the Moiré pattern noise
 
