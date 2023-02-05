@@ -1,3 +1,2 @@
 include ':app'
 rootProject.name = "AR Sudoku Solver"
-include ':openCVLibrary3415'

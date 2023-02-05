@@ -276,7 +276,7 @@ public class ImageProcessor {
                 if (sudoku.getValue(index) != 0) {
                     origin.x = x * cellSize + margin + 3;
                     origin.y = (y + 1) * cellSize - margin - 3;
-                    Imgproc.putText(blackSquare, "" + sudoku.getValue(index), origin, Core.FONT_HERSHEY_PLAIN, 6, WHITE, sudoku.isInitValue(index) ? 7 : 3);
+                    Imgproc.putText(blackSquare, "" + sudoku.getValue(index), origin, Imgproc.FONT_HERSHEY_PLAIN, 6, WHITE, sudoku.isInitValue(index) ? 7 : 3);
                 }
             }
         }

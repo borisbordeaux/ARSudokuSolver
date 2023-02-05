@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Starts the camera preview
      */
-    public void startCamera() {
+    private void startCamera() {
         //create the potential (future) camera provider
         //it will contains the camera provider when the
         //camera will be available
