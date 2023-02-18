@@ -4,6 +4,11 @@ This project is a Sudoku solver application for Android in augmented reality (AR
 It uses OpenCV for all image processing.  
 To do so, the app scans a grid of Sudoku using the camera. When a grid is detected (explained how in the pipeline), the user can ask to solve it. The sudoku is then solved once and it stays solved and displayed while the same sudoku is detected (computed each frame). When a new sudoku is detected, the user has to ask again to solve the sudoku. Doing this way allows this app to run easily at 30 fps on a mobile phone.
 
+## Download and install the app
+
+Check the release of the app [here](https://github.com/borisbordeaux/ARSudokuSolver/releases) and download the apk file.  
+Then you need to install it directly using your phone.
+
 ## How to build
 
 Clone this repo and add a `local.properties` file at the root folder of the Android app:  
