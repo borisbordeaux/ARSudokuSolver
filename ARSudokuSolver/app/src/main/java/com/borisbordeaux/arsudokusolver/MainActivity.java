@@ -147,6 +147,10 @@ public class MainActivity extends AppCompatActivity {
                 ImageAnalysis imageAnalysis = builder
                         //set the resolution of the view
                         .setTargetResolution(new android.util.Size(400, 400))
+                        //set image format
+                        .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
+                        //set rotation
+                        .setOutputImageRotationEnabled(true)
                         //the executor receives the last available frame from the camera at the time that the analyze() method is called
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();

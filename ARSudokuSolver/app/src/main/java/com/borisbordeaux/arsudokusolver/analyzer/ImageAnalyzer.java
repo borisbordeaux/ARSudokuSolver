@@ -1,7 +1,10 @@
 package com.borisbordeaux.arsudokusolver.analyzer;
 
 import android.graphics.Bitmap;
+import android.graphics.ImageFormat;
+import android.view.Gravity;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.camera.core.ImageAnalysis.Analyzer;
 import androidx.camera.core.ImageProxy;
@@ -42,13 +45,22 @@ public class ImageAnalyzer implements Analyzer {
      */
     @Override
     public void analyze(@NotNull ImageProxy image) {
+
+        if (image.getFormat() != ImageFormat.YUV_420_888) {
+            image.close();
+            Toast t = Toast.makeText(mPreviewView.getContext(), "", Toast.LENGTH_SHORT);
+            t.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);
+            t.setText("Image format not compatible");
+            t.show();
+            return;
+        }
+
         //convert image Yuv to Mat RGB
         //rotate the image because native image is rotated
         //resize to a square image
         if (rgb == null)
             rgb = new Mat(image.getWidth(), image.getHeight(), CvType.CV_8UC3);
         ImageConverter.convYUV2RGB(image, rgb);
-        Core.rotate(rgb, rgb, Core.ROTATE_90_CLOCKWISE);
         Imgproc.resize(rgb, rgb, SQUARE_SIZE);
 
         //fill output image
