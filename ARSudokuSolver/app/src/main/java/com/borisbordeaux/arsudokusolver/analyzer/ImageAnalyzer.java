@@ -45,16 +45,6 @@ public class ImageAnalyzer implements Analyzer {
      */
     @Override
     public void analyze(@NotNull ImageProxy image) {
-
-        if (image.getFormat() != ImageFormat.YUV_420_888) {
-            image.close();
-            Toast t = Toast.makeText(mPreviewView.getContext(), "", Toast.LENGTH_SHORT);
-            t.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);
-            t.setText("Image format not compatible");
-            t.show();
-            return;
-        }
-
         //convert image Yuv to Mat RGB
         //rotate the image because native image is rotated
         //resize to a square image
